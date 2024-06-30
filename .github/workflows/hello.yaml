@@ -1,4 +1,4 @@
-name : say Hello World!
+name: say Hello World!
 
 on:
   push:
@@ -8,9 +8,8 @@ on:
 jobs:
   hello_world_job:
     runs-on: ubuntu-20.04
-      steps:
-        - name: say hello step 
-          run : |
-              echo "Hello World! "
-              echo "my first github action"
-              
+    steps:
+      - name: say hello step 
+        run: |
+          echo "Hello World!"
+          echo "my first github action"
