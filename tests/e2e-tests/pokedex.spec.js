@@ -7,7 +7,7 @@ describe('Pokedex', () => {
     await expect(page.getByText('Pokémon and Pokémon character names are trademarks of Nintendo.')).toBeVisible()
   })
 
-  test('checks whter right info is displayed on viewing specific pokemon', async ({page}) => {
+  test('checks whter right info is displayed on viewing specific pokemon', async ({ page }) => {
     await page.goto('http://localhost:8080/pokemon/ivysaur')
     await expect(page.getByText('ivysaur')).toBeVisible()
     await expect(page.getByText('chlorophyll')).toBeVisible()
