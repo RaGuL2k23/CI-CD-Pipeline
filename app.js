@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
+const path = require('path')
 
 // get the port from env variable
 const PORT = process.env.PORT || 5000
@@ -12,6 +13,10 @@ app.get('/version', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.send('ok')
+})
+
+app.get('*', (request, response) =>  {
+  response.sendFile(path.resolve('./dist/index.html'))
 })
 app.listen(PORT, () => {
   console.log(`server started on port ${PORT}`)
