@@ -43,7 +43,7 @@ jobs:
       # only deploy on push and merge not on pull
         if: ${{ github.event_name == 'push' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
-        tag_release:
+  tag_release:
           runs-on: ubuntu-20.04
           steps:
            - name: Get commit messages
