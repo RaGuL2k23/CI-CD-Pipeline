@@ -43,28 +43,36 @@ jobs:
       # only deploy on push and merge not on pull
         if: ${{ github.event_name == 'push' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+
   tag_release:
-          needs: [simple_deployment_pipeline]
-          runs-on: ubuntu-20.04
-          steps:
-           - name: Get commit messages
-             id: get_commit_messages
-             run: |
-               COMMIT_MESSAGES=$(echo '${{ toJson(github.event.commits.*.message) }}' | jq -r '. | join(" ")')
-               echo "COMMIT_MESSAGES=$COMMIT_MESSAGES" >> $GITHUB_ENV
-         
-           - name: Print commit messages
-             run: echo "$COMMIT_MESSAGES"
-         
-           - name: Skip tag found
-             if: contains(env.COMMIT_MESSAGES, '#skip')
-             run: echo "Skipping version bump"
-         
-           - name: Bump version and push tag
-             uses: anothrNick/github-tag-action@1.36.0
-             env:
-               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-               DEFAULT_BUMP: patch
-               DRY_RUN: true
-               RELEASE_BRANCHES: main
-   
+       runs-on: ubuntu-20.04
+       needs: [simple_deployment_pipeline]
+       steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: '20'        
+        - name: Get commit messages
+          id: get_commit_messages
+          run: |
+            COMMIT_MESSAGES=$(echo '${{ toJson(github.event.commits.*.message) }}' | jq -r '. | join(" ")')
+            echo "COMMIT_MESSAGES=$COMMIT_MESSAGES" >> $GITHUB_ENV
+      
+        - name: Print commit messages
+          run: echo "$COMMIT_MESSAGES"
+      
+        - name: Skip tag found
+          if: contains(env.COMMIT_MESSAGES, '#skip')
+          run: echo "Skipping version bump"
+      
+        - name: Bump version and push tag
+          uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            DEFAULT_BUMP: patch
+            DRY_RUN: true
+            RELEASE_BRANCHES: main
+            TAG_CONTEXT: branch
+            BRANCH_HISTORY: last
+ 
