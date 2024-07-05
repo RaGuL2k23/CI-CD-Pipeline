@@ -43,6 +43,47 @@ jobs:
       # only deploy on push and merge not on pull
         if: ${{ github.event_name == 'push' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+        - name: Set up context
+        run: |
+          echo "JOB_NAME=${{ github.workflow }}" >> $GITHUB_ENV
+          echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          echo "COMMIT_AUTHOR=${{ github.actor }}" >> $GITHUB_ENV
+
+      - name: Test Success
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()
+        with:
+          severity: info
+          details: |
+            Job: ${{ env.JOB_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+            Author: ${{ env.COMMIT_AUTHOR }}
+            Status: Test Succeeded!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Test Failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: error
+          details: |
+            Job: ${{ env.JOB_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+            Author: ${{ env.COMMIT_AUTHOR }}
+            Status: Test Failed!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Test Cancelled
+        uses: rjstone/discord-webhook-notify@v1
+        if: cancelled()
+        with:
+          severity: warn
+          details: |
+            Job: ${{ env.JOB_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+            Author: ${{ env.COMMIT_AUTHOR }}
+            Status: Test Cancelled!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   tag_release:
        needs: [simple_deployment_pipeline]
