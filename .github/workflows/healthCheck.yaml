@@ -1,0 +1,39 @@
+name: Health Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every 24 hours at midnight UTC
+
+jobs:
+  check_health:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu image
+
+    steps:
+      # Step 1: Check the deployed service URL
+      - name: Check the deployed service URL
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: https://github.com/RaGuL2k23/CI-CD-Pipeline  # URL to check
+          follow-redirect: false  # Optional, defaults to "false"
+          max-attempts: 3  # Optional, defaults to 1
+          retry-delay: 5s  # Optional, delay between retries
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}  # PAT for actions (ensure you have this secret set up)
+
+      # Step 2: Notify Discord on Success
+      - name: Notify Discord on Success
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()  # Run this step only if the previous step succeeds
+        with:
+          severity: info  # Severity level for the notification
+          details: Test Succeeded!  # Message details
+          webhookUrl: https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq  # Direct Discord Webhook URL
+
+      # Step 3: Notify Discord on Failure
+      - name: Notify Discord on Failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()  # Run this step only if the previous step fails
+        with:
+          severity: error  # Severity level for the notification
+          details: Test Failed!  # Message details
+          webhookUrl: https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq  # Direct Discord Webhook URL
