@@ -10,6 +10,10 @@ jobs:
 
     steps:
       # Step 1: Check the deployed service URL
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+            node-version: '20'
       - name: Check the deployed service URL
         uses: jtalk/url-health-check-action@v4
         with:
@@ -21,19 +25,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}  # PAT for actions (ensure you have this secret set up)
 
       # Step 2: Notify Discord on Success
-      - name: Notify Discord on Success
-        uses: rjstone/discord-webhook-notify@v1
-        if: success()  # Run this step only if the previous step succeeds
-        with:
-          severity: info  # Severity level for the notification
-          details: Test Succeeded!  # Message details
-          webhookUrl: https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq  # Direct Discord Webhook URL
+      - name: Set up context
+      run: |
+        echo "JOB_NAME=${{ github.workflow }}" >> $GITHUB_ENV
+        echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+        echo "COMMIT_AUTHOR=${{ github.actor }}" >> $GITHUB_ENV
 
-      # Step 3: Notify Discord on Failure
-      - name: Notify Discord on Failure
-        uses: rjstone/discord-webhook-notify@v1
-        if: failure()  # Run this step only if the previous step fails
-        with:
-          severity: error  # Severity level for the notification
-          details: Test Failed!  # Message details
-          webhookUrl: https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq  # Direct Discord Webhook URL
+    - name: Test Success
+      uses: rjstone/discord-webhook-notify@v1
+      if: success()
+      with:
+        severity: info
+        details: |
+          Job: ${{ env.JOB_NAME }}
+          Commit: ${{ env.COMMIT_HASH }}
+          Author: ${{ env.COMMIT_AUTHOR }}
+          Status: Test Succeeded!
+        webhookUrl: "https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq"
+
+    - name: Test Failure
+      uses: rjstone/discord-webhook-notify@v1
+      if: failure()
+      with:
+        severity: error
+        details: |
+          Job: ${{ env.JOB_NAME }}
+          Commit: ${{ env.COMMIT_HASH }}
+          Author: ${{ env.COMMIT_AUTHOR }}
+          Status: Test Failed!
+        webhookUrl: "https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq"
+
+    - name: Test Cancelled
+      uses: rjstone/discord-webhook-notify@v1
+      if: cancelled()
+      with:
+        severity: warn
+        details: |
+          Job: ${{ env.JOB_NAME }}
+          Commit: ${{ env.COMMIT_HASH }}
+          Author: ${{ env.COMMIT_AUTHOR }}
+          Status: Test Cancelled!
+        webhookUrl: "https://discord.com/api/webhooks/1258806904440754176/B45UKZleTK5b5d7DSS7SGqM67M312kr6cbgvpOVB9eOmHh2v2SzcULu0vKvDl0q_DMlq"
