@@ -118,8 +118,9 @@ jobs:
         - name: Skip tag found
           if: contains(env.COMMIT_MESSAGES, '#skip')
           run: echo "Skipping version bump"
-      
+          
         - name: Bump version and push tag
+          if: ${{ !contains(env.COMMIT_MESSAGES, '#skip') }}  
           uses: phish108/autotag-action@v1.1.55
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
