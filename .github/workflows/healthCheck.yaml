@@ -2,7 +2,7 @@ name: Health Check
 
 on:
   schedule:
-    - cron: '0 6 1 1,4,7,10 *' # runs at 6am daily
+    - cron: '0 6 1 1,4,7,10 *' # 3 months once 
 
 jobs:
   check_health:
