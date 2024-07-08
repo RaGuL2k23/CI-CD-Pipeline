@@ -2,7 +2,7 @@ name: Health Check
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs every 24 hours at midnight UTC
+    - cron: '0 0 * * *'  # runs at 6am daily
 
 jobs:
   check_health:
@@ -22,7 +22,7 @@ jobs:
           max-attempts: 3  # Optional, defaults to 1
           retry-delay: 5s  # Optional, delay between retries
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}  # PAT for actions (ensure you have this secret set up)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
 
       # Step 2: Notify Discord on Success
       - name: Set up context
